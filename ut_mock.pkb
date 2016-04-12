@@ -19,6 +19,20 @@ create or replace package body ut_mock as
       return dbms_metadata.get_ddl('PACKAGE_BODY', upper(name));
    end;
 
+   procedure recompile(source in clob)
+   is
+      a number;
+   begin
+      commit;
+      dbms_output.put_line(source);
+      dbms_job.submit(a, 'begin execute immediate ''' || source || '''; end;');
+      --dbms_job.run(a);
+      commit;
+
+      execute immediate source;
+      null;
+   end;
+
 end;
 /
 show err
