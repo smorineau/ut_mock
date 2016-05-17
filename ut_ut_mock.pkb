@@ -21,7 +21,7 @@ create or replace package body ut_ut_mock as
       utassert.eq('action.perform should be reset', action.perform, false);
    end;
 
-   -- @mock mock_action :: action:perform_mockable
+   -- @mock mock_action :: action:perform
    function mock_action return boolean
    is
    begin
@@ -32,10 +32,10 @@ create or replace package body ut_ut_mock as
    procedure ut_get_source
    is
    begin
-      utassert.eq('action should be reset', 
+      utassert.eq('action should be reset',
          instr(
             ut_mock.get_source_of('action'),
-            '@mockable perform_mockable'), 
+            '@mockable perform'),
          72);
    end;
 
@@ -48,6 +48,52 @@ create or replace package body ut_ut_mock as
       execute immediate 'begin utassert.eq(''action.perform should return true'', action.perform, true); end;';
       ut_mock.recompile(source);
       execute immediate 'begin utassert.eq(''action.perform should be restored to false'', action.perform, false); end;';
+   end;
+
+   procedure ut_find_mock
+   is
+   begin
+      utassert.eq('mock_code should be extracted',
+                  ut_mock.find_mock('
+bla bla
+-- @mock another_mock_action :: action.perform
+mock_action
+-- @endmock
+bla bla
+-- @mock mock_action :: action.perform
+mock code for mock_action.
+-- @endmock
+bla bla',
+                     'mock_action').mock_code,
+                  'mock code for perform.');
+
+      utassert.eq('target_package should be extracted',
+                  ut_mock.find_mock('
+bla bla
+-- @mock another_mock_action :: action.perform
+mock_action
+-- @endmock
+bla bla
+-- @mock mock_action :: action.perform
+mock code for mock_action.
+-- @endmock
+bla bla',
+                     'mock_action').target_package,
+                  'action');
+
+      utassert.eq('target_entity should be extracted',
+                  ut_mock.find_mock('
+bla bla
+-- @mock another_mock_action :: action.perform
+mock_action
+-- @endmock
+bla bla
+-- @mock mock_action :: action.perform
+mock code for mock_action.
+-- @endmock
+bla bla',
+                     'mock_action').target_entity,
+                  'perform');
    end;
 
 end;
