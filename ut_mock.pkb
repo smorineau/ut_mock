@@ -14,17 +14,19 @@ create or replace package body ut_mock as
 
    function find_mock(content in clob, mock_entity in varchar2) return mock_details
    is
-      mock_pattern      constant varchar2(100) := '--\s*@Mock\s*' || mock_entity || '.*--\s*@Endmock';
-      target_package_pattern      constant varchar2(100) := '--\s*@Mock\s*' || mock_entity || '\s*::\s*(\w+)\s*.*';
-      target_entity_pattern      constant varchar2(100) := '--\s*@Mock\s*' || mock_entity || '\s*::\s*\w+\s*\.\s*(\w+).*';
-      mock_code_pattern      constant varchar2(100) := '--\s*@Mock\s*' || mock_entity || '.*$(.*)\s*--\s*@Endmock';
-      result       mock_details;
-      extract      clob;
+      mock_pattern            constant varchar2(100) := '--\s*@Mock\s*' || mock_entity || '.*--\s*@Endmock';
+      target_package_pattern  constant varchar2(100) := '--\s*@Mock\s*' || mock_entity || '\s*::\s*(\w+)\s*.*';
+      target_entity_pattern   constant varchar2(100) := '--\s*@Mock\s*' || mock_entity || '\s*::\s*\w+\s*\.\s*(\w+).*';
+      mock_code_pattern       constant varchar2(100) := '--\s*@Mock\s*' || mock_entity || '\s*::\s*\w+\s*\.\s*\w+\s*(.*).--\s*@Endmock';
+      mock_code               clob;
+      result                  mock_details;
+      extract                 clob;
    begin
       extract := regexp_substr(content, mock_pattern, 1, 1, 'ni');
-      result.mock_code := extract;
       result.target_package := regexp_replace(extract, target_package_pattern, '\1', 1, 1, 'ni');
       result.target_entity := regexp_replace(extract, target_entity_pattern, '\1', 1, 1, 'ni');
+      mock_code := regexp_replace(extract, mock_code_pattern, '\1', 1, 1, 'ni');
+      result.mock_code := replace(mock_code, mock_entity, result.target_entity);
       return result;
    end;
 

@@ -4,9 +4,9 @@ create or replace package ut_mock as
 
    procedure use_mock(to_be_mocked in varchar2);
    procedure reset_mock;
-   function get_source_of(name in varchar2) return clob;
+   function  get_source_of(name in varchar2) return clob;
    procedure recompile(source in clob);
-   function find_mock(content in clob, mock_entity in varchar2) return mock_details;
+   function  find_mock(content in clob, mock_entity in varchar2) return mock_details;
 
 end;
 /
