@@ -1,13 +1,14 @@
 create or replace package ut_mock as
 
-   type mock_details is record (mock_code clob, target_package varchar2(30), target_entity varchar2(100));
+   type mock_details is record (mock_code clob, mockable_package varchar2(30), mockable_name varchar2(100));
 
-   procedure use_mock(to_be_mocked in varchar2);
+   procedure use_mock(mock_package_name in varchar2, mock_name in varchar2);
    procedure reset_mock;
-   function  get_source_of(name in varchar2) return clob;
-   procedure recompile(source in clob);
-   function  find_mock(content in clob, mock_entity in varchar2) return mock_details;
-   function replace_mockable(source in clob, target_entity in varchar2, mock in clob) return clob;
+   function  find_mock(mock_package_source in clob, mock_name in varchar2) return mock_details;
+   function replace_mockable(mockable_package_source in clob, mockable_name in varchar2, mock_code in clob) return clob;
+
+   function  get_source_of(package_name in varchar2) return clob;
+   procedure recompile(package_source in clob);
 
 end;
 /

@@ -15,7 +15,7 @@ create or replace package body ut_ut_mock as
    procedure ut_use_mock_acceptance
    is
    begin
-      ut_mock.use_mock('ut_ut_mock:mock_action');
+      ut_mock.use_mock('ut_ut_mock', 'mock_action');
       utassert.eq('action.perform should be mocked', action.perform, true);
       ut_mock.reset_mock;
       utassert.eq('action.perform should be reset', action.perform, false);
@@ -78,7 +78,7 @@ bla bla
 mock code for mock_action.
 -- @endmock
 bla bla',
-                     'mock_action').target_package,
+                     'mock_action').mockable_package,
                   'action');
 
       utassert.eq('target_entity should be extracted',
@@ -92,7 +92,7 @@ bla bla
 mock code for mock_action.
 -- @endmock
 bla bla',
-                     'mock_action').target_entity,
+                     'mock_action').mockable_name,
                   'perform');
    end;
 
