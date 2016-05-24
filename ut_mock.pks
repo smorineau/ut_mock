@@ -7,6 +7,7 @@ create or replace package ut_mock as
    function  get_source_of(name in varchar2) return clob;
    procedure recompile(source in clob);
    function  find_mock(content in clob, mock_entity in varchar2) return mock_details;
+   function replace_mockable(source in clob, target_entity in varchar2, mock in clob) return clob;
 
 end;
 /

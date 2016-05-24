@@ -56,11 +56,11 @@ create or replace package body ut_ut_mock as
       utassert.eq('mock_code should be extracted',
                   ut_mock.find_mock('
 bla bla
--- @mock another_mock_action :: action.perform
+-- @mock [another_mock_action] :: action.perform
 mock_action
 -- @endmock
 bla bla
--- @mock mock_action :: action.perform
+-- @mock [mock_action] :: action.perform
 mock code for mock_action.
 -- @endmock
 bla bla',
@@ -70,11 +70,11 @@ bla bla',
       utassert.eq('target_package should be extracted',
                   ut_mock.find_mock('
 bla bla
--- @mock another_mock_action :: action.perform
+-- @mock [mock_action_another] :: action.perform
 mock_action
 -- @endmock
 bla bla
--- @mock mock_action :: action.perform
+-- @mock [mock_action] :: action.perform
 mock code for mock_action.
 -- @endmock
 bla bla',
@@ -84,16 +84,56 @@ bla bla',
       utassert.eq('target_entity should be extracted',
                   ut_mock.find_mock('
 bla bla
--- @mock another_mock_action :: action.perform
+-- @mock [another_mock_action] :: action.perform
 mock_action
 -- @endmock
 bla bla
--- @mock mock_action :: action.perform
+-- @mock [mock_action] :: action.perform
 mock code for mock_action.
 -- @endmock
 bla bla',
                      'mock_action').target_entity,
                   'perform');
+   end;
+
+   procedure ut_replace_mockable
+   is
+   begin
+      utassert.eq('mockable_code should be extracted',
+                  ut_mock.replace_mockable('
+create or replace package body action as
+
+   -- @mockable [perform_another]
+   function perform return boolean
+   is
+   begin
+     return true;
+   end;
+   -- @endmockable
+   -- @mockable [perform]
+   function perform return boolean
+   is
+   begin
+     return false;
+   end;
+   -- @endmockable
+
+end;',
+                  'perform',
+                  'toto')
+         , '
+create or replace package body action as
+
+   -- @mockable [perform_another]
+   function perform return boolean
+   is
+   begin
+     return true;
+   end;
+   -- @endmockable
+   toto
+
+end;');
    end;
 
 end;

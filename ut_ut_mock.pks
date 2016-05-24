@@ -5,6 +5,7 @@ create or replace package UT_UT_MOCK as
    procedure ut_get_source;
    procedure ut_recompile;
    procedure ut_find_mock;
+   procedure ut_replace_mockable;
 end;
 /
 show err
