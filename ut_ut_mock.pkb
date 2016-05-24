@@ -16,12 +16,13 @@ create or replace package body ut_ut_mock as
    is
    begin
       ut_mock.use_mock('ut_ut_mock', 'mock_action');
-      utassert.eq('action.perform should be mocked', action.perform, true);
+--      utassert.eq('action.perform should be mocked', action.perform, true);
+      execute immediate 'begin utassert.eq(''action.perform should be mocked'', action.perform, true); end;';
       ut_mock.reset_mock;
       utassert.eq('action.perform should be reset', action.perform, false);
    end;
 
-   -- @mock mock_action :: action:perform
+   -- @mock [mock_action] :: action.perform
    function mock_action return boolean
    is
    begin
@@ -35,7 +36,7 @@ create or replace package body ut_ut_mock as
       utassert.eq('action should be reset',
          instr(
             ut_mock.get_source_of('action'),
-            '@mockable perform'),
+            '@mockable [perform]'),
          72);
    end;
 
@@ -60,12 +61,16 @@ bla bla
 mock_action
 -- @endmock
 bla bla
--- @mock [mock_action] :: action.perform
-mock code for mock_action.
+-- @mock [wanted_mock_action] :: action.perform
+wanted_mock_action
 -- @endmock
+-- @mock [yet_another_mock_action] :: action.perform
+yet_another_mock_action
+-- @endmock
+
 bla bla',
-                     'mock_action').mock_code,
-                  'mock code for perform.');
+                     'wanted_mock_action').mock_code,
+                  'perform');
 
       utassert.eq('target_package should be extracted',
                   ut_mock.find_mock('
@@ -134,6 +139,27 @@ create or replace package body action as
    toto
 
 end;');
+   end;
+
+   procedure ut_backup_package_source
+   is
+   begin
+      utassert.eqqueryvalue('package TOTO is not backed up',
+         'select count(*) from ut_mockable_packages where package_name = ''TOTO''',
+         0);
+      ut_mock.backup_package_source('TOTO','toto source');
+      utassert.eqqueryvalue('package TOTO is backed up',
+         'select count(*) from ut_mockable_packages where package_name = ''TOTO''',
+         1);
+      ut_mock.backup_package_source('TITI','titi source');
+      utassert.eqqueryvalue('package TITI is backed up',
+         'select count(*) from ut_mockable_packages',
+         2);
+      ut_mock.backup_package_source('TOTO','toto source 2');
+      utassert.eqqueryvalue('package TOTO is not backed up again',
+         'select count(*) from ut_mockable_packages',
+         2);
+      execute immediate 'truncate table ut_mockable_packages';
    end;
 
 end;

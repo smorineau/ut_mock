@@ -1,6 +1,6 @@
 create or replace package body action as
 
-   -- @mockable perform
+   -- @mockable [perform]
    function perform return boolean
    is
    begin

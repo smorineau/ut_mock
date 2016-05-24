@@ -1,6 +1,8 @@
 set serveroutput on
 set lines 80
 
+@ut_mockable_packages.sql
+
 @ut_mock.pks
 @ut_mock.pkb
 

@@ -9,6 +9,7 @@ create or replace package ut_mock as
 
    function  get_source_of(package_name in varchar2) return clob;
    procedure recompile(package_source in clob);
+   procedure backup_package_source(package_name in varchar2, package_source in clob);
 
 end;
 /
