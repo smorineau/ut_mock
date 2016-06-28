@@ -61,11 +61,14 @@ create or replace package body ut_mock as
    begin
 --      commit;
 --      dbms_output.put_line(source);
-      dbms_job.submit(a, 'begin execute immediate ''' || package_source || '''; end;');
+--      dbms_job.submit(a, 'begin execute immediate ''' || package_source || '''; end;');
 --      commit;
-
+--dbms_output.put_line(package_source);
+      commit;
       execute immediate package_source;
-      null;
+      commit;
+      execute immediate ('alter package action compile package');
+--      null;
    end;
 
    procedure backup_package_source(package_name in varchar2, package_source in clob)

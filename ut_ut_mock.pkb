@@ -12,14 +12,21 @@ create or replace package body ut_ut_mock as
       null;
    end;
 
+   function perform_caller_proxy return boolean
+   is
+      v_return      boolean;
+   begin
+      execute immediate 'begin :this := action.perform; end;' using in out v_return;
+     return v_return;
+   end;
+
    procedure ut_use_mock_acceptance
    is
    begin
       ut_mock.use_mock('ut_ut_mock', 'mock_action');
---      utassert.eq('action.perform should be mocked', action.perform, true);
-      execute immediate 'begin utassert.eq(''action.perform should be mocked'', action.perform, true); end;';
+      utassert.eq('action.perform should be mocked', perform_caller_proxy, true);
       ut_mock.reset_mock;
-      utassert.eq('action.perform should be reset', action.perform, false);
+      utassert.eq('action.perform should be reset', perform_caller_proxy, false);
    end;
 
    -- @mock [mock_action] :: action.perform
@@ -43,12 +50,14 @@ create or replace package body ut_ut_mock as
    procedure ut_recompile
    is
       source clob;
+      action_value      boolean := null;
    begin
       source := ut_mock.get_source_of('action');
       ut_mock.recompile(replace(source, 'false', 'true'));
-      execute immediate 'begin utassert.eq(''action.perform should return true'', action.perform, true); end;';
+      utassert.eq('action.perform should return true', perform_caller_proxy, true);
+
       ut_mock.recompile(source);
-      execute immediate 'begin utassert.eq(''action.perform should be restored to false'', action.perform, false); end;';
+      utassert.eq('action.perform should be restored to false', perform_caller_proxy, false);
    end;
 
    procedure ut_find_mock
